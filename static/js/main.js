@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // API endpoint'ini güncelle
-const API_URL = 'https://your-render-app-name.onrender.com';
+const API_URL = 'https://crisiscommunicationanalys.onrender.com';
 
 async function clearCache() {
     try {

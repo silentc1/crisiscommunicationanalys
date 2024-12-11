@@ -7,7 +7,6 @@ from concurrent.futures import ThreadPoolExecutor
 import atexit
 import redis
 import hashlib
-import os
 
 # Cache süresini tanımla (1 saat = 3600 saniye)
 CACHE_EXPIRATION = 3600
@@ -65,46 +64,26 @@ genai.configure(api_key=GOOGLE_API_KEY)
 MODEL_ID = "tunedModels/crisis-communication-gh20ehxj5b3b"
 
 # Redis bağlantısı
-redis_url = os.getenv('REDIS_URL', 'redis://localhost:6380')
-try:
-    redis_client = redis.from_url(redis_url)
-    redis_client.ping()
-    print("Redis connection successful")
-except redis.ConnectionError as e:
-    print(f"Redis connection failed: {e}")
-    redis_client = None
+redis_client = None
 
 def get_cached_result(key):
-    try:
-        if redis_client:
-            return redis_client.get(key)
-    except:
-        return None
-    return None
+    return None  # Redis olmadığı için her zaman None dön
 
 def set_cached_result(key, value):
-    try:
-        if redis_client:
-            redis_client.setex(key, CACHE_EXPIRATION, value)
-            print(f"Cache set for key: {key}")
-    except Exception as e:
-        print(f"Cache set error: {str(e)}")
-        pass
+    pass  # Redis olmadığı için hiçbir şey yapma
 
 @app.route('/analyze', methods=['POST', 'OPTIONS'])
 def analyze_crisis():
     if request.method == 'OPTIONS':
-        return make_cors_preflight_response()
-
+        return jsonify({'success': True})
+    
     try:
         data = request.json
         input_text = data.get('text', '')
         input_url = data.get('url', '')
         youtube_url = data.get('youtube_url', '')
 
-        # URL veya YouTube içeriğini al
         if youtube_url:
-            print(f"\n=== YouTube URL Processing ===\nURL: {youtube_url}")
             input_text = get_youtube_transcript(youtube_url)
             if not input_text:
                 return jsonify({
@@ -113,7 +92,6 @@ def analyze_crisis():
                 }), 400
 
         elif input_url:
-            print(f"\n=== News URL Processing ===\nURL: {input_url}")
             input_text = extract_text_from_url(input_url)
             if not input_text:
                 return jsonify({
@@ -127,30 +105,12 @@ def analyze_crisis():
                 'error': 'Geçerli bir metin bulunamadı.'
             }), 400
 
-        # Cache key oluştur
-        cache_key = hashlib.md5(
-            f"{input_text}{input_url}{youtube_url}".encode()
-        ).hexdigest()
-
-        # Cache'den kontrol et
-        cached_result = get_cached_result(cache_key)
-        if cached_result:
-            print(f"Cache hit for key: {cache_key}")
-            return jsonify({
-                'success': True,
-                'result': cached_result,
-                'cached': True
-            })
-
         # Gemini AI analizi
         prompt = f"""Structure and analyze the following case using the provided structure and give me an output like first ,structured form of the case than analyze of that case and (do these by the perspective of a crisis communication perspective)
 input case[{input_text}]"""
         
         response = genai.GenerativeModel(MODEL_ID).generate_content(prompt)
         result = response.text
-
-        # Sonucu cache'e kaydet
-        set_cached_result(cache_key, result)
 
         return jsonify({
             'success': True,
