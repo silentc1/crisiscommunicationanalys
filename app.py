@@ -108,8 +108,17 @@ def analyze_crisis():
         # Gemini AI analizi
         prompt = f"""Structure and analyze the following case using the provided structure and give me an output like first ,structured form of the case than analyze of that case and (do these by the perspective of a crisis communication perspective)
 input case[{input_text}]"""
-        
-        response = genai.GenerativeModel(MODEL_ID).generate_content(prompt)
+        generation_config = {
+            'temperature': 0,  # 0 = en deterministik sonuç
+            'top_p': 1,
+            'top_k': 1
+        }
+
+        model = genai.GenerativeModel(MODEL_ID)
+        response = model.generate_content(
+            prompt,
+            generation_config=generation_config
+        )
         result = response.text
 
         return jsonify({
