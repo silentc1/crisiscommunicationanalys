@@ -7,11 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 import atexit
 import redis
 import hashlib
-from dotenv import load_dotenv
 import os
-
-# .env dosyasını yükle
-load_dotenv()
 
 # Cache süresini tanımla (1 saat = 3600 saniye)
 CACHE_EXPIRATION = 3600
@@ -61,8 +57,8 @@ def after_request(response):
         })
     return response
 
-# API anahtarını environment variable'dan al
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+# API anahtarınızı buraya ekleyin
+GOOGLE_API_KEY = "AIzaSyBXTLs-v2qe3gDFimx1xCACfUENgV6dqCk"
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # Fine-tune edilmiş model ID'nizi tanımlayın
@@ -204,4 +200,5 @@ def clear_cache():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port) 
