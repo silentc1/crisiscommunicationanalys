@@ -1,0 +1,8 @@
+flask
+flask-cors
+google-generativeai
+youtube-transcript-api
+beautifulsoup4
+redis
+requests
+gunicorn

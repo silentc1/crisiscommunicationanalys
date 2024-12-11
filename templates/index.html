@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kriz Analiz Sistemi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-secondary: white;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --accent-color: #1e40af;
+            --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent-color: #3b82f6;
+            --border-color: #404040;
+            --input-bg: #262626;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .university-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .university-name {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #1e40af;
+        }
+        
+        .faculty-name {
+            font-size: 1.1em;
+            color: #475569;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .input-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .type-button {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .type-button.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        .analysis-result {
+    white-space: pre-wrap;
+    font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            color: var(--text-primary);
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        textarea, #urlInput, #youtubeInput {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+        }
+
+        textarea:focus, #urlInput:focus, #youtubeInput:focus {
+            outline: none;
+            border-color: #1e40af;
+            background-color: white;
+        }
+
+        #urlInput, #youtubeInput {
+            display: none;
+        }
+
+        button[onclick="analyzeText()"] {
+            padding: 14px 28px;
+            background-color: #1e40af;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            align-self: center;
+        }
+
+        button[onclick="analyzeText()"]:hover {
+            background-color: #1e3a8a;
+            transform: translateY(-1px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 0.9em;
+        }
+
+        .language-switch {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 8px 16px;
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .language-switch:hover {
+            background-color: var(--border-color);
+        }
+
+        .theme-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px;
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .theme-switch:hover {
+            background-color: var(--border-color);
+        }
+
+        .input-container input[type="url"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+        }
+
+        .input-container input[type="url"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background-color: white;
+        }
+
+        .cached-badge {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 10px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #fecaca;
+        }
+
+        .section-content strong {
+            color: var(--accent-color);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-content br {
+            display: block;
+            margin: 0.5rem 0;
+            content: "";
+            line-height: 1.5;
+        }
+
+        .section-content li {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="university-logo">
+            <div class="university-name">Bahçeşehir Üniversitesi</div>
+        </div>
+        <div class="faculty-name">İletişim Fakültesi</div>
+    </div>
+
+    <div class="container">
+        <h1>Kriz Analiz Sistemi</h1>
+        
+        <div class="input-type-selector">
+            <button class="type-button active" onclick="switchInputType('text')">
+                <i class="fas fa-keyboard"></i> Metin Girişi
+            </button>
+            <button class="type-button" onclick="switchInputType('newsUrl')">
+                <i class="fas fa-newspaper"></i> Haber URL
+            </button>
+            <button class="type-button" onclick="switchInputType('youtubeUrl')">
+                <i class="fab fa-youtube"></i> YouTube URL
+            </button>
+            <button class="type-button" onclick="clearCache()">
+                <i class="fas fa-broom"></i> Cache'i Temizle
+            </button>
+        </div>
+        
+        <div class="input-container">
+            <textarea id="inputText" placeholder="Analiz edilecek metni buraya girin..."></textarea>
+            <input type="url" id="newsUrlInput" placeholder="Haber URL'ini buraya girin..." style="display: none;" />
+            <input type="url" id="youtubeUrlInput" placeholder="YouTube URL'ini buraya girin..." style="display: none;" />
+        </div>
+        
+        <button onclick="analyzeText()">Analiz Et</button>
+        <div id="result"></div>
+    </div>
+
+    <div class="footer">
+        © 2024 Bahçeşehir Üniversitesi İletişim Fakültesi
+    </div>
+
+    <button class="language-switch" onclick="toggleLanguage()">EN</button>
+    <button class="theme-switch" onclick="toggleTheme()">🌓</button>
+
+    <!-- Harici JavaScript dosyaları -->
+    <script src="{{ url_for('static', filename='js/urlHandler.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 
