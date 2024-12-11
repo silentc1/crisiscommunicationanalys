@@ -97,15 +97,12 @@ async function analyzeText() {
             youtube_url: isYoutubeMode ? inputValue : ''
         });
         
-        const response = await fetch('http://127.0.0.1:5000/analyze', {
+        const response = await fetch(`${API_URL}/analyze`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Accept': 'application/json'
             },
-            credentials: 'omit',
-            mode: 'cors',
             body: JSON.stringify({
                 text: isNewsUrlMode || isYoutubeMode ? '' : inputValue,
                 url: isNewsUrlMode ? inputValue : '',
@@ -173,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // API endpoint'ini güncelle
-const API_URL = 'https://your-app-name.onrender.com';
+const API_URL = 'https://your-render-app-name.onrender.com';
 
 async function clearCache() {
     try {

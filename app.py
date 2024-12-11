@@ -65,15 +65,10 @@ genai.configure(api_key=GOOGLE_API_KEY)
 MODEL_ID = "tunedModels/crisis-communication-gh20ehxj5b3b"
 
 # Redis bağlantısı
+redis_url = os.getenv('REDIS_URL', 'redis://localhost:6380')
 try:
-    redis_client = redis.Redis(
-        host='localhost',
-        port=6380,  # Port değiştirildi
-        db=0,
-        decode_responses=True,
-        socket_connect_timeout=2
-    )
-    redis_client.ping()  # Test connection
+    redis_client = redis.from_url(redis_url)
+    redis_client.ping()
     print("Redis connection successful")
 except redis.ConnectionError as e:
     print(f"Redis connection failed: {e}")
@@ -200,5 +195,4 @@ def clear_cache():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port) 
+    app.run(debug=True) 
