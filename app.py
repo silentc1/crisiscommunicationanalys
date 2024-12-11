@@ -7,6 +7,11 @@ from concurrent.futures import ThreadPoolExecutor
 import atexit
 import redis
 import hashlib
+from dotenv import load_dotenv
+import os
+
+# .env dosyasını yükle
+load_dotenv()
 
 # Cache süresini tanımla (1 saat = 3600 saniye)
 CACHE_EXPIRATION = 3600
@@ -38,18 +43,26 @@ def cleanup_executor():
 
 atexit.register(cleanup_executor)
 
+ALLOWED_ORIGINS = [
+    "https://your-app-name.onrender.com",
+    "http://localhost:5000",
+    "http://127.0.0.1:5000"
+]
+
 @app.after_request
 def after_request(response):
-    response.headers.update({
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept',
-        'Access-Control-Max-Age': '3600'
-    })
+    origin = request.headers.get('Origin')
+    if origin in ALLOWED_ORIGINS:
+        response.headers.update({
+            'Access-Control-Allow-Origin': origin,
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '3600'
+        })
     return response
 
-# API anahtarınızı buraya ekleyin
-GOOGLE_API_KEY = "AIzaSyBXTLs-v2qe3gDFimx1xCACfUENgV6dqCk"
+# API anahtarını environment variable'dan al
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # Fine-tune edilmiş model ID'nizi tanımlayın

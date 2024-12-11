@@ -172,9 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// API endpoint'ini güncelle
+const API_URL = 'https://your-app-name.onrender.com';
+
 async function clearCache() {
     try {
-        const response = await fetch('http://127.0.0.1:5000/clear-cache', {
+        const response = await fetch(`${API_URL}/clear-cache`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
