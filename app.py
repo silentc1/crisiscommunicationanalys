@@ -84,11 +84,31 @@ def analyze_crisis():
         youtube_url = data.get('youtube_url', '')
 
         if youtube_url:
-            input_text = get_youtube_transcript(youtube_url)
-            if not input_text:
+            try:
+                print(f"\n=== Processing YouTube URL ===\n{youtube_url}")
+                input_text = get_youtube_transcript(youtube_url)
+                
+                if not input_text or len(input_text.strip()) == 0:
+                    return jsonify({
+                        'success': False,
+                        'error': 'Video transkripti boş. Lütfen başka bir video deneyin.',
+                        'details': 'Empty transcript'
+                    }), 400
+                    
+            except ValueError as ve:
+                print(f"\n=== YouTube Transcript Error ===\n{str(ve)}")
                 return jsonify({
                     'success': False,
-                    'error': 'Video için transkript bulunamadı. Lütfen altyazısı olan bir video deneyin.'
+                    'error': str(ve),
+                    'details': 'Transcript not available'
+                }), 400
+                
+            except Exception as e:
+                print(f"\n=== Unexpected YouTube Error ===\n{str(e)}")
+                return jsonify({
+                    'success': False,
+                    'error': 'Video işlenirken beklenmeyen bir hata oluştu.',
+                    'details': str(e)
                 }), 400
 
         elif input_url:
@@ -108,8 +128,16 @@ def analyze_crisis():
         # Gemini AI analizi
         prompt = f"""Structure and analyze the following case using the provided structure and give me an output like first ,structured form of the case than analyze of that case and (do these by the perspective of a crisis communication perspective)
 input case[{input_text}]"""
-        
-        response = genai.GenerativeModel(MODEL_ID).generate_content(prompt)
+        generation_config = {
+            'temperature': 0,  # 0 = en deterministik sonuç
+            'top_p': 1,
+            'top_k': 1
+        }
+        model = genai.GenerativeModel(MODEL_ID)
+        response = model.generate_content(
+            prompt,
+            generation_config=generation_config
+        )
         result = response.text
 
         return jsonify({

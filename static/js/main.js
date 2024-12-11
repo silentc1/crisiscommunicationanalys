@@ -170,7 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // API endpoint'ini güncelle
-const API_URL = 'https://crisiscommunicationanalys.onrender.com';
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://127.0.0.1:5000'
+    : 'https://crisiscommunicationanalys.onrender.com';
 
 async function clearCache() {
     try {

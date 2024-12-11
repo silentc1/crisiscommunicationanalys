@@ -27,20 +27,28 @@ def get_youtube_transcript(url: str) -> str:
             raise ValueError("Invalid YouTube URL")
         
         transcript = None
-        try_languages = ['en']
+        try_languages = ['tr', 'en']
         
         for lang in try_languages:
             try:
+                print(f"Attempting to fetch transcript in language: {lang}")
                 transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=[lang])
+                print(f"Successfully found transcript in {lang}")
                 break
-            except:
+            except Exception as e:
+                print(f"Failed to get transcript in {lang}: {str(e)}")
                 continue
                 
         if not transcript:
             try:
+                print("Attempting to fetch transcript in any available language")
                 transcript = YouTubeTranscriptApi.get_transcript(video_id)
+                print("Successfully found transcript in fallback language")
             except Exception as e:
-                print(f"No transcript found in any language: {str(e)}")
+                error_msg = str(e)
+                print(f"No transcript found in any language: {error_msg}")
+                if "No transcript found" in error_msg:
+                    return "Video için transkript bulunamadı. Lütfen altyazısı olan bir video deneyin."
                 return None
         
         full_transcript = ' '.join(entry['text'] for entry in transcript)
