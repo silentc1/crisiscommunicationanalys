@@ -88,7 +88,8 @@ def analyze_crisis():
                 print(f"\n=== Processing YouTube URL ===\n{youtube_url}")
                 input_text = get_youtube_transcript(youtube_url)
                 
-                if not input_text or len(input_text.strip()) == 0:
+                if not input_text:
+                    print("Error: Empty transcript returned")
                     return jsonify({
                         'success': False,
                         'error': 'Video transkripti boş. Lütfen başka bir video deneyin.',
@@ -96,19 +97,21 @@ def analyze_crisis():
                     }), 400
                     
             except ValueError as ve:
-                print(f"\n=== YouTube Transcript Error ===\n{str(ve)}")
+                error_message = str(ve)
+                print(f"\n=== YouTube Transcript Error ===\n{error_message}")
                 return jsonify({
                     'success': False,
-                    'error': str(ve),
-                    'details': 'Transcript not available'
+                    'error': error_message,
+                    'details': 'Transcript error'
                 }), 400
                 
             except Exception as e:
-                print(f"\n=== Unexpected YouTube Error ===\n{str(e)}")
+                error_message = str(e)
+                print(f"\n=== Unexpected YouTube Error ===\n{error_message}")
                 return jsonify({
                     'success': False,
                     'error': 'Video işlenirken beklenmeyen bir hata oluştu.',
-                    'details': str(e)
+                    'details': error_message
                 }), 400
 
         elif input_url:
